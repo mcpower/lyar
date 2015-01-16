@@ -12,7 +12,7 @@ def not_mine(userid, questid):
 
 def is_disabled(userid, questid):
     all_votes = api.Vote.find_all(voter_id=userid, qid=questid)
-    if any(userid == vote.voter_id for vote in all_votes):
+    if any(userid == vote.voter_id for vote in all_votes) or not not_mine(userid, questid):
         return "disabled"
     else:
         return " "

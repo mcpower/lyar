@@ -280,3 +280,7 @@ table tr:nth-child(odd) td {
 table tr:nth-child(even) td, th {
 	background-color: #bbb;
 }
+
+.mine {
+	opacity: 0.5;
+}
