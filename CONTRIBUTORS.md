@@ -38,7 +38,9 @@ Worked on the design and CSS, implemented cookies, structured the Tornado run.py
 ### Fiona
 No description added. Please add one!
 ### Bryan
-No description added. Please add one!
+Member of the original Database team.
+Worked on implementing user system and created points system.
+Always there to place your trust in.
 
 ## Tutors
 ### Maddy
