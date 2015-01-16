@@ -37,9 +37,9 @@ Member of the original Tornado team.
 Worked on the design and CSS, implemented cookies, structured the Tornado run.py file.
 ### Fiona
 No description added. Please add one!
-### Bryan
-Member of the original Database team.
-Worked on implementing user system and created points system.
+### [Bryan](https://github.com/Bryan-Mitchell)
+Member of the original Database team.  
+Worked on implementing user system and created points system.  
 Always there to place your trust in.
 
 ## Tutors
