@@ -6,10 +6,10 @@
 		<p>In each question, select which statement you think is a lie.</p>
 		<section id="questionList">
 		{% for question in questions %}
-			<form method="POST" action="/question/answer"{%if not not_mine(current_user.uid, question.qid) %} class="mine" {% end if %}>
+			<form method="POST" action="/question/answer"{% if not not_mine(current_user.uid, question.qid) %} class="mine"{% end if %}>
 				<fieldset>
 					<legend>
-						<a href="/question/{{ question.qid }}">{{ question.name }}</a> by {{ question.get_creator().username }}:
+						<a href="/question/{{ question.qid }}">{{ question.name }}</a> by {% if not_mine(current_user.uid, question.qid) %}{{ question.get_creator().username }}{% else %}you{% end if %}:
 						<p style="display: inline-block; margin-left: 12px;"> {{ count_votes(question.qid) }}  vote{{"s" if count_votes(question.qid) != 1 else "" }}</p>
 					</legend>
 					<ul>
@@ -27,7 +27,7 @@
 						</li>
 					</ul>
 					<input type="hidden" name="id" value="{{ question.qid }}">
-					{% if not_mine(current_user.uid, question.qid) %}<input style="border: 1px solid #757575;" type="submit"> {% end if %}
+					{% if not_mine(current_user.uid, question.qid) %}<input style="border: 1px solid #757575;" type="submit">{% end if %}
 				</fieldset>
 			</form>
 		{% end for %}
