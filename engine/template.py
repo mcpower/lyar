@@ -21,7 +21,7 @@ def id_token(token):
     if token.startswith('{{') and token.endswith('}}'):
         return make_dict('python', token[2:-2].strip())
     elif token.startswith('{%') and token.endswith('%}'):
-        inner = token[2:-2].strip().split()
+        inner = token[2:-2].split()
         if inner[0] == 'include':
             return make_dict('include', {'path' : inner[1], 'variables' : inner[2:]})
         elif inner[0] == 'if':
