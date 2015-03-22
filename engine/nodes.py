@@ -110,9 +110,9 @@ class IfNode(Node):
                 return self.false_node.render(context)
 
     def __repr__(self):
-        left = '...' if self is self.true_node else str(self.true_node)
-        right = '...' if self is self.false_node else str(self.false_node)
-        return 'IfNode({}, {}, {})'.format(id(self), left, right)
+        left = "..." if self is self.true_node else str(self.true_node)
+        right = "..." if self is self.false_node else str(self.false_node)
+        return "IfNode({}, {}, {})".format(id(self), left, right)
 
 
 class ForNode(Node):
@@ -144,4 +144,4 @@ class CommentNode(Node):
         self.comment = comment
 
     def render(self, context):
-        return ''
+        return ""

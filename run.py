@@ -60,9 +60,9 @@ def view_question(response):
             "count_votes": count_votes,
             "current_user": current_user,
             "message": None,
-            'is_checked': is_checked,
-            'is_disabled': is_disabled,
-            'not_mine': not_mine
+            "is_checked": is_checked,
+            "is_disabled": is_disabled,
+            "not_mine": not_mine
         }
         response.write(template.render_page("q_view.html", context))
 
@@ -72,10 +72,10 @@ def create_question(response):
     response.write(template.render_page("q_create.html", {
         "message": None,
         "current_user": current_user,
-        "statement0": '',
-        "statement1": '',
-        "statement2": '',
-        "name": ''
+        "statement0": "",
+        "statement1": "",
+        "statement2": "",
+        "name": ""
     }))
 
 
@@ -91,20 +91,20 @@ def insert_new_question(response):
 
     # checks whether the user manually got to this page by URL editing
     if any(field is None for field in fields) or current_user is None:
-        response.redirect('/')
+        response.redirect("/")
         return  # replace this with an else later, I'm kinda lazy -Michael
 
     error_message = None
     if any(statement == "" for statement in (fields)):
-        error_message = ('Please enter 3 non-empty statements '
-                         'and a non-empty topic')
+        error_message = ("Please enter 3 non-empty statements "
+                         "and a non-empty topic")
     elif any(len(statement) > 128 for statement in (fields)):
-        error_message = 'Character limit exceeded 128 characters'
+        error_message = "Character limit exceeded 128 characters"
     elif name == "":
-        error_message = 'Please enter question name'
+        error_message = "Please enter question name"
     elif (statement0 == statement1 or statement1 == statement2 or
             statement0 == statement2):
-        error_message = 'Please enter 3 different statements'
+        error_message = "Please enter 3 different statements"
 
     if error_message is None:
         lie = response.get_field("lie")
@@ -131,7 +131,7 @@ def login(response):
             "questions": api.Question.find_all(),
             "count_votes": count_votes,
             "current_user": current_user,
-            "message": 'You are already logged in!'
+            "message": "You are already logged in!"
         }))
         return
 
@@ -183,7 +183,7 @@ def register(response):
             "questions": api.Question.find_all(),
             "count_votes": count_votes,
             "current_user": current_user,
-            "message": 'You are already logged in!'
+            "message": "You are already logged in!"
         }))
         return
 
@@ -193,25 +193,25 @@ def register(response):
 
     if username is None or password is None or confirm_password is None:
         response.write(template.render_page("register.html", {
-            'message': None,
+            "message": None,
             "current_user": current_user
         }))
         return
 
     error_message = None
-    if username == '' or password == '' or confirm_password == '':
-        error_message = 'Username or password was empty!'
+    if username == "" or password == "" or confirm_password == "":
+        error_message = "Username or password was empty!"
     elif api.User.find(username):
-        error_message = 'Username is taken already!'
+        error_message = "Username is taken already!"
     elif password != confirm_password:
-        error_message = 'Passwords do not match!'
+        error_message = "Passwords do not match!"
     elif re.match(username_regex, username) is None:
-        error_message = ('Usernames must be between 3 to 16 characters '
-                         'in length and must have alphanumeric characters, '
-                         'dashes or underscores.')
+        error_message = ("Usernames must be between 3 to 16 characters "
+                         "in length and must have alphanumeric characters, "
+                         "dashes or underscores.")
     elif re.match(password_regex, password) is None:
-        error_message = ('Passwords must be between 1 to 128 characters '
-                         'in length and must have printable ASCII characters.')
+        error_message = ("Passwords must be between 1 to 128 characters "
+                         "in length and must have printable ASCII characters.")
 
     if error_message is None:
         user = api.User.create(username, api.User.hash_password(password)
@@ -220,15 +220,15 @@ def register(response):
         response.redirect("/")
     else:
         response.write(template.render_page("register.html", {
-            'message': error_message,
+            "message": error_message,
             "current_user": current_user
         }))
 
 
 # check whether the selection is the lie
 def vote(response):
-    if response.get_field('id') is None:
-        response.redirect('/')
+    if response.get_field("id") is None:
+        response.redirect("/")
         return
 
     user_input = response.get_field("user_input")
@@ -241,13 +241,13 @@ def vote(response):
             "questions": api.Question.find_all(),
             "count_votes": count_votes,
             "current_user": current_user,
-            "message": 'You cannot vote on the question. (You are the author)'
+            "message": "You cannot vote on the question. (You are the author)"
         }))
     elif (current_user is not None and
             len(api.Vote.find_all(qid=question_id,
                 voter_id=current_user.uid)) == 0):
         vote = api.Vote.create(question_id, int(user_input), current_user.uid)
-        response.redirect('/question/' + str(question_id))
+        response.redirect("/question/" + str(question_id))
         print(vote.vote)
         print(question.lie)
         if vote.vote == question.lie:
@@ -261,7 +261,7 @@ def vote(response):
             "questions": api.Question.find_all(),
             "count_votes": count_votes,
             "current_user": current_user,
-            "message": 'You have already voted!'
+            "message": "You have already voted!"
         }))
 
 
@@ -276,7 +276,7 @@ def question_handler(response, question_id):
     current_user = get_user_from_response(response)
     if current_user is None:
         # user is not logged in
-        response.redirect('/login')
+        response.redirect("/login")
         return
 
     question_id = int(question_id)
@@ -286,19 +286,19 @@ def question_handler(response, question_id):
             "questions": api.Question.find_all(),
             "count_votes": count_votes,
             "current_user": current_user,
-            "message": 'Invalid Question ID!'
+            "message": "Invalid Question ID!"
         }))
         return
     question_author = question.get_creator()
 
     # only display the voting results if the user has voted
     context = {
-        'pageName': 'View Post',
+        "pageName": "View Post",
         "question": question,
         "current_user": current_user,
         "count_votes": count_votes,
         "author": question_author,
-        'disabled': ''
+        "disabled": ""
     }
 
     if len(api.Vote.find_all(qid=question_id, voter_id=current_user.uid)) > 0:
@@ -327,19 +327,19 @@ def profile_handler(response, user_name):
     if user_profile is not None:
         print(user_name)
         print(user_profile)
-        response.write(template.render_page('profile.html', {
-            'username': user_profile.username,
+        response.write(template.render_page("profile.html", {
+            "username": user_profile.username,
             "questions": api.Question.find_all(user_profile.uid),
             "current_user": current_user,
             "points": user_profile.points
         }))
     else:
-        response.redirect('/404')
+        response.redirect("/404")
 
 
 def statistics_handler(response):
     current_user = get_user_from_response(response)
-    response.write(template.render_page('statistics.html', {
+    response.write(template.render_page("statistics.html", {
         "number_of_votes": len(api.Vote.find_all()),
         "number_of_correct_votes": api.Vote.number_of_correct_votes(),
         "number_of_questions": len(api.Question.find_all()),
@@ -350,7 +350,7 @@ def statistics_handler(response):
 def scoreboard_handler(response):
     current_user = get_user_from_response(response)
     top_users = api.User.find_best(10)
-    response.write(template.render_page('scoreboard.html', {
+    response.write(template.render_page("scoreboard.html", {
         "top_users": top_users,
         "current_user": current_user
     }))
@@ -371,7 +371,7 @@ server.register("/logout", logout)
 server.register("/register", register)
 server.register("/question/answer", vote)
 server.register(r"/question/(\d+)", question_handler)
-server.register(r'/profile/(\w+)', profile_handler)
+server.register(r"/profile/(\w+)", profile_handler)
 server.register("/stats", statistics_handler)
 server.register("/scoreboard", scoreboard_handler)
 server.register("/404", _404)

@@ -2,16 +2,16 @@ import sqlite3
 import os.path
 from . import passwordhash
 
-if os.path.exists('db'):
-    con = sqlite3.connect('db/database.db')
+if os.path.exists("db"):
+    con = sqlite3.connect("db/database.db")
 else:
-    con = sqlite3.connect('database.db')
+    con = sqlite3.connect("database.db")
 
 
 # Class for the question table
 class Question:
     def __init__(self, qid, statement0, statement1, statement2, lie,
-                 creator_id, name=''):
+                 creator_id, name=""):
         self.qid = qid
         self.statement0 = statement0
         self.statement1 = statement1
@@ -27,21 +27,21 @@ class Question:
     # Function for creating questions in the database.
     @classmethod
     def create(cls, statement0, statement1, statement2, lie, creator_id,
-               name=''):
+               name=""):
         id_find = con.execute(
-            '''SELECT id FROM question ORDER BY id DESCLIMIT 1;'''
+            """SELECT id FROM question ORDER BY id DESCLIMIT 1;"""
         )
         row = id_find.fetchone()
         qid = int(row[0]) + 1
         data = (qid, statement0, statement1, statement2, lie, creator_id, name)
-        con.execute('''INSERT INTO question VALUES(?, ?, ?, ?, ?, ?, ?);''', data)
+        con.execute("""INSERT INTO question VALUES(?, ?, ?, ?, ?, ?, ?);""", data)
         con.commit()
         return cls(*data)
 
     # Function for finding questions in the database, run with the class.
     @classmethod
     def find(cls, qid):
-        cur = con.execute('''SELECT * FROM question WHERE id=?''', (qid, ))
+        cur = con.execute("""SELECT * FROM question WHERE id=?""", (qid, ))
         locate = cur.fetchone()
         if locate is None:
             return None
@@ -51,7 +51,7 @@ class Question:
     # Function for deleting questions in the database.
     # Must run with a question object e.g. (quest_obj.delete()).
     def delete(self):
-        con.execute('''DELETE FROM question WHERE id=?;''', (self.qid,))
+        con.execute("""DELETE FROM question WHERE id=?;""", (self.qid,))
         con.commit()
         return True
 
@@ -62,10 +62,10 @@ class Question:
     @classmethod
     def find_all(self, creator_id=None):
         if creator_id is None:
-            query = con.execute('''SELECT * FROM question''')
+            query = con.execute("""SELECT * FROM question""")
         else:
             query = con.execute(
-                '''SELECT * FROM question WHERE creator_id=?''',
+                """SELECT * FROM question WHERE creator_id=?""",
                 (creator_id,)
             )
         all_rows = query.fetchall()
@@ -74,17 +74,17 @@ class Question:
     @classmethod
     def find_all_home_specific(self, creator_id=None):
         if creator_id is None:
-            query = con.execute('''SELECT * FROM question ORDER BY id DESC;''')
+            query = con.execute("""SELECT * FROM question ORDER BY id DESC;""")
         else:
             query = con.execute(
-                '''SELECT * FROM question WHERE creator_id = ?;''',
+                """SELECT * FROM question WHERE creator_id = ?;""",
                 (creator_id,)
             )
         all_rows = query.fetchall()
         return [Question(*row) for row in all_rows]
 
     def __repr__(self):
-        return 'id: {}, s0: {}, s1: {}, s2: {}, lie: {}, name: {}, creator: {}'.format(self.qid, self.statement0, self.statement1, self.statement2, self.lie, self.name, self.creator_id)
+        return "id: {}, s0: {}, s1: {}, s2: {}, lie: {}, name: {}, creator: {}".format(self.qid, self.statement0, self.statement1, self.statement2, self.lie, self.name, self.creator_id)
 
 
 # Class for the vote table
@@ -100,20 +100,20 @@ class Vote:
     @classmethod
     def create(self, qid, vote, voter_id):
         id_find = con.execute(
-            '''SELECT id FROM vote ORDER BY id DESC LIMIT 1;'''
+            """SELECT id FROM vote ORDER BY id DESC LIMIT 1;"""
         )
         row = id_find.fetchone()
         vid = row[0] + 1
         data = (vid, qid, vote, voter_id)
-        con.execute('''INSERT INTO vote VALUES(?, ?, ?, ?);''', data)
+        con.execute("""INSERT INTO vote VALUES(?, ?, ?, ?);""", data)
         con.commit()
         return Vote(*data)
 
-    # The function to find a vote based on it's vid (vote id) which is unique.
+    # The function to find a vote based on it"s vid (vote id) which is unique.
     # Returns a vote object.
     @classmethod
     def find(self, vid):
-        query = con.execute('''SELECT * FROM vote WHERE ? = id;''', (vid,))
+        query = con.execute("""SELECT * FROM vote WHERE ? = id;""", (vid,))
         row = query.fetchone()
         if row is None:
             return None
@@ -121,7 +121,7 @@ class Vote:
 
     # The function to delete a vote object from the database.
     def delete(self):
-        con.execute('''DELETE FROM vote WHERE ? = id;''', (self.vid,))
+        con.execute("""DELETE FROM vote WHERE ? = id;""", (self.vid,))
         con.commit()
         return True
 
@@ -132,22 +132,22 @@ class Vote:
     def find_all(self, qid=None, vote=None, voter_id=None):
         filters = []
         sql_string = []
-        sql_and = ' AND '
+        sql_and = " AND "
         if qid is not None:
             filters.append(qid)
-            sql_string.append('''qid = ?''')
+            sql_string.append("""qid = ?""")
         if vote is not None:
             filters.append(vote)
-            sql_string.append('''vote = ?''')
+            sql_string.append("""vote = ?""")
         if voter_id is not None:
             filters.append(voter_id)
-            sql_string.append('''voter_id = ?''')
+            sql_string.append("""voter_id = ?""")
         query = sql_and.join(sql_string)
         filters = tuple(filters)
-        sql_command = '''SELECT * FROM vote WHERE '''
+        sql_command = """SELECT * FROM vote WHERE """
         query = (sql_command + query)
         if filters == ():
-            cur = con.execute('''SELECT * FROM vote''')
+            cur = con.execute("""SELECT * FROM vote""")
         else:
             cur = con.execute(query, filters)
         all_result = cur.fetchall()
@@ -158,9 +158,9 @@ class Vote:
 
     @classmethod
     def number_of_correct_votes(cls, voter_id=None):
-        sql_command = '''SELECT count(*)
+        sql_command = """SELECT count(*)
                          FROM question q JOIN vote v ON (q.id = v.qid)
-                         WHERE q.lie = v.vote'''
+                         WHERE q.lie = v.vote"""
         if voter_id is None:
             cur = con.execute(sql_command)
         else:
@@ -171,7 +171,7 @@ class Vote:
         return result
 
     def __repr__(self):
-        return 'id: {} qid: {} vote: {} voter: {}'.format(self.vid, self.qid, self.vote, self.voter_id)
+        return "id: {} qid: {} vote: {} voter: {}".format(self.vid, self.qid, self.vote, self.voter_id)
 
 
 # Class for the user table
@@ -179,7 +179,7 @@ class User:
     def __init__(self, uid, username, password, points=0):
         self.uid = uid
         self.username = username
-        self.password = password.encode('ascii')
+        self.password = password.encode("ascii")
         self.points = points
 
     @classmethod
@@ -190,12 +190,12 @@ class User:
     @classmethod
     def create(cls, username, password):
         id_find = con.execute(
-            '''SELECT id FROM user ORDER BY id DESC LIMIT 1;'''
+            """SELECT id FROM user ORDER BY id DESC LIMIT 1;"""
         )
         row = id_find.fetchone()
         uid = int(row[0]) + 1
         data = (uid, username, password)
-        con.execute('''INSERT INTO user VALUES(?, ?, ?, 0);''', data)
+        con.execute("""INSERT INTO user VALUES(?, ?, ?, 0);""", data)
         con.commit()
         return cls(*data)
 
@@ -204,19 +204,19 @@ class User:
     def find(cls, username=None, uid=None):
         filters = []
         sql_string = []
-        sql_and = ' AND '
+        sql_and = " AND "
         if uid is not None:
             filters.append(uid)
-            sql_string.append('''id = ?''')
+            sql_string.append("""id = ?""")
         if username is not None:
             filters.append(username)
-            sql_string.append('''username = ?''')
+            sql_string.append("""username = ?""")
         query = sql_and.join(sql_string)
         filters = tuple(filters)
-        sql_command = '''SELECT * FROM user WHERE '''
+        sql_command = """SELECT * FROM user WHERE """
         query = (sql_command + query)
         if filters == ():
-            cur = con.execute('''SELECT * FROM user''')
+            cur = con.execute("""SELECT * FROM user""")
         else:
             cur = con.execute(query, filters)
         all_result = cur.fetchone()
@@ -230,10 +230,10 @@ class User:
         self.points += points
         # print("THIS SHOULD HAPPEN")
         # print(self.points)
-        cur = con.execute('''UPDATE user SET points = ? WHERE id = ?;''',
+        cur = con.execute("""UPDATE user SET points = ? WHERE id = ?;""",
                           (self.points, self.uid))
         con.commit()
-        cur = con.execute('''SELECT points FROM user WHERE id = ?''',
+        cur = con.execute("""SELECT points FROM user WHERE id = ?""",
                           (self.uid,))
         row = cur.fetchone()[0]
         # print(row)
@@ -241,17 +241,17 @@ class User:
 
     # Function for deleting users in the database.
     def delete(self):
-        con.execute('''DELETE FROM user WHERE id=?''', (self.uid,))
+        con.execute("""DELETE FROM user WHERE id=?""", (self.uid,))
         con.commit()
         return True
 
     def __repr__(self):
-        return 'id: {}, username: {}, password: {}, points: {}'.format(self.uid, self.username, self.password, self.points)
+        return "id: {}, username: {}, password: {}, points: {}".format(self.uid, self.username, self.password, self.points)
 
     # Function for listing all usernames and passwords (debugging only)
     @classmethod
     def find_all(cls):
-        all_users = con.execute('''SELECT * FROM user ORDER BY id ASC''')
+        all_users = con.execute("""SELECT * FROM user ORDER BY id ASC""")
         rows = all_users.fetchall()
         output = []
         for u in rows:
@@ -264,7 +264,7 @@ class User:
     def find_best(cls, limit):
         limit = str(limit)
         best_users = con.execute(
-            '''SELECT * FROM user ORDER BY points DESC LIMIT ?''',
+            """SELECT * FROM user ORDER BY points DESC LIMIT ?""",
             (limit,)
         )
         rows = best_users.fetchall()
@@ -277,18 +277,18 @@ class User:
     def update(self, username=None, password=None):
         filters = []
         sql_string = []
-        sql_and = ', '
+        sql_and = ", "
         if username is not None:
             filters.append(username)
-            sql_string.append('''username = ? ''')
+            sql_string.append("""username = ? """)
         if password is not None:
             filters.append(password)
-            sql_string.append('''password = ? ''')
+            sql_string.append("""password = ? """)
         query = sql_and.join(sql_string)
         filters.append(self.uid)
-        end = '''WHERE id = ?;'''
+        end = """WHERE id = ?;"""
         filters = tuple(filters)
-        sql_command = '''UPDATE user SET '''
+        sql_command = """UPDATE user SET """
         query = (sql_command + query)
         if filters == ():
             return False
