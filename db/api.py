@@ -7,9 +7,11 @@ if os.path.exists('db'):
 else:
     con = sqlite3.connect('database.db')
 
+
 # Class for the question table
 class Question:
-    def __init__(self, qid, statement0, statement1, statement2, lie, creator_id, name=''):
+    def __init__(self, qid, statement0, statement1, statement2, lie,
+                 creator_id, name=''):
         self.qid = qid
         self.statement0 = statement0
         self.statement1 = statement1
@@ -24,37 +26,48 @@ class Question:
 
     # Function for creating questions in the database.
     @classmethod
-    def create(cls, statement0, statement1, statement2, lie, creator_id, name=''):
-        id_find = con.execute('''SELECT id FROM question ORDER BY id DESC LIMIT 1;''')
+    def create(cls, statement0, statement1, statement2, lie, creator_id,
+               name=''):
+        id_find = con.execute(
+            '''SELECT id FROM question ORDER BY id DESCLIMIT 1;'''
+        )
         row = id_find.fetchone()
         qid = int(row[0]) + 1
-        cur = con.execute('''INSERT INTO question VALUES(?, ?, ?, ?, ?, ?, ?);''', (qid, statement0, statement1, statement2, lie, creator_id, name))
+        data = (qid, statement0, statement1, statement2, lie, creator_id, name)
+        con.execute('''INSERT INTO question VALUES(?, ?, ?, ?, ?, ?, ?);''', data)
         con.commit()
-        return cls(qid, statement0, statement1, statement2, lie, creator_id, name)
+        return cls(*data)
 
     # Function for finding questions in the database, run with the class.
     @classmethod
     def find(cls, qid):
         cur = con.execute('''SELECT * FROM question WHERE id=?''', (qid, ))
         locate = cur.fetchone()
-        if locate == None:
+        if locate is None:
             return None
         else:
             return cls(*locate)
 
-    # Function for deleting questions in the database, must run with a question object e.g. (quest_obj.delete()).
+    # Function for deleting questions in the database.
+    # Must run with a question object e.g. (quest_obj.delete()).
     def delete(self):
-        cur = con.execute('''DELETE FROM question WHERE id=?;''', (self.qid, ))# must be a tuple
+        con.execute('''DELETE FROM question WHERE id=?;''', (self.qid,))
         con.commit()
         return True
 
-    # Function to find all questions if no argument is supplied. If an argument is supplied (creator_id) it acts as a filter to find specific entries based on creator_id.
+
+    # Function to find all questions if no argument is supplied.
+    # If an argument is supplied (creator_id) it acts as a filter
+    # to find specific entries based on creator_id.
     @classmethod
     def find_all(self, creator_id=None):
         if creator_id is None:
             query = con.execute('''SELECT * FROM question''')
         else:
-            query = con.execute('''SELECT * FROM question WHERE creator_id=?  ''', (creator_id,))
+            query = con.execute(
+                '''SELECT * FROM question WHERE creator_id=?''',
+                (creator_id,)
+            )
         all_rows = query.fetchall()
         return [Question(*row) for row in all_rows]
 
@@ -63,12 +76,16 @@ class Question:
         if creator_id is None:
             query = con.execute('''SELECT * FROM question ORDER BY id DESC;''')
         else:
-            query = con.execute('''SELECT * FROM question WHERE creator_id = ?;''', (creator_id,))
+            query = con.execute(
+                '''SELECT * FROM question WHERE creator_id = ?;''',
+                (creator_id,)
+            )
         all_rows = query.fetchall()
         return [Question(*row) for row in all_rows]
-        
+
     def __repr__(self):
         return 'id: {}, s0: {}, s1: {}, s2: {}, lie: {}, name: {}, creator: {}'.format(self.qid, self.statement0, self.statement1, self.statement2, self.lie, self.name, self.creator_id)
+
 
 # Class for the vote table
 class Vote:
@@ -77,18 +94,23 @@ class Vote:
         self.qid = qid
         self.vote = vote
         self.voter_id = voter_id
-        
-    # The function to create a vote and add it to the database, returns a vote object
+
+    # The function to create a vote and add it to the database.
+    # Returns a vote object.
     @classmethod
     def create(self, qid, vote, voter_id):
-        id_find = con.execute('''SELECT id FROM vote ORDER BY id DESC LIMIT 1;''')
+        id_find = con.execute(
+            '''SELECT id FROM vote ORDER BY id DESC LIMIT 1;'''
+        )
         row = id_find.fetchone()
         vid = row[0] + 1
-        cur = con.execute('''INSERT INTO vote VALUES(?, ?, ?, ?);''', (vid, qid, vote, voter_id))
+        data = (vid, qid, vote, voter_id)
+        con.execute('''INSERT INTO vote VALUES(?, ?, ?, ?);''', data)
         con.commit()
-        return Vote(vid, qid, vote, voter_id)
-    
-    # The function to find a vote based on it's vid (vote id) which is unique returns a vote object
+        return Vote(*data)
+
+    # The function to find a vote based on it's vid (vote id) which is unique.
+    # Returns a vote object.
     @classmethod
     def find(self, vid):
         query = con.execute('''SELECT * FROM vote WHERE ? = id;''', (vid,))
@@ -96,14 +118,16 @@ class Vote:
         if row is None:
             return None
         return Vote(*row)
-    
-    # The function to delete a vote object from the database, run it with a vote object
+
+    # The function to delete a vote object from the database.
     def delete(self):
         con.execute('''DELETE FROM vote WHERE ? = id;''', (self.vid,))
         con.commit()
         return True
-    
-    # The function to find all votes if no argument is supplied. If an argument is supplied, it is treated as a filter to find specific entries. 
+
+    # The function to find all votes if no argument is supplied.
+    # If an argument is supplied, it is treated as a filter to
+    # find specific entries.
     @classmethod
     def find_all(self, qid=None, vote=None, voter_id=None):
         filters = []
@@ -125,7 +149,7 @@ class Vote:
         if filters == ():
             cur = con.execute('''SELECT * FROM vote''')
         else:
-            cur = con.execute(query,filters)
+            cur = con.execute(query, filters)
         all_result = cur.fetchall()
         votes = []
         for result in all_result:
@@ -133,13 +157,15 @@ class Vote:
         return votes
 
     @classmethod
-    def number_of_correct_votes(cls, voter_id = None):
-        sql_command = '''SELECT count(*) FROM question q JOIN vote v ON (q.id = v.qid) WHERE q.lie = v.vote'''
+    def number_of_correct_votes(cls, voter_id=None):
+        sql_command = '''SELECT count(*)
+                         FROM question q JOIN vote v ON (q.id = v.qid)
+                         WHERE q.lie = v.vote'''
         if voter_id is None:
             cur = con.execute(sql_command)
         else:
             filters = (voter_id,)
-            cur = con.execute(sql_command + " and v.voter_id=?",filters)
+            cur = con.execute(sql_command + " and v.voter_id=?", filters)
         result = cur.fetchone()[0]
         # print("number of correct votes:", result)
         return result
@@ -147,9 +173,10 @@ class Vote:
     def __repr__(self):
         return 'id: {} qid: {} vote: {} voter: {}'.format(self.vid, self.qid, self.vote, self.voter_id)
 
+
 # Class for the user table
 class User:
-    def __init__(self, uid, username, password, points = 0):
+    def __init__(self, uid, username, password, points=0):
         self.uid = uid
         self.username = username
         self.password = password.encode('ascii')
@@ -162,12 +189,15 @@ class User:
     # Function for creating users in the database.
     @classmethod
     def create(cls, username, password):
-        id_find = con.execute('''SELECT id FROM user ORDER BY id DESC LIMIT 1;''')
+        id_find = con.execute(
+            '''SELECT id FROM user ORDER BY id DESC LIMIT 1;'''
+        )
         row = id_find.fetchone()
         uid = int(row[0]) + 1
-        cur = con.execute('''INSERT INTO user VALUES(?, ?, ?, 0);''', (uid, username, password))
+        data = (uid, username, password)
+        con.execute('''INSERT INTO user VALUES(?, ?, ?, 0);''', data)
         con.commit()
-        return cls(uid, username, password, 0)
+        return cls(*data)
 
     # Function for finding users in the database.
     @classmethod
@@ -188,28 +218,30 @@ class User:
         if filters == ():
             cur = con.execute('''SELECT * FROM user''')
         else:
-            cur = con.execute(query,filters)
+            cur = con.execute(query, filters)
         all_result = cur.fetchone()
-        if all_result == None:
+        if all_result is None:
             return None
         else:
             return cls(*all_result)
 
     # Function for adding points to the user object
-    def add_points(self, points = 1):
+    def add_points(self, points=1):
         self.points += points
         # print("THIS SHOULD HAPPEN")
         # print(self.points)
-        cur = con.execute('''UPDATE user SET points = ? WHERE id = ?;''', (self.points, self.uid))
+        cur = con.execute('''UPDATE user SET points = ? WHERE id = ?;''',
+                          (self.points, self.uid))
         con.commit()
-        cur = con.execute('''SELECT points FROM user WHERE id = ?''', (self.uid, ))
+        cur = con.execute('''SELECT points FROM user WHERE id = ?''',
+                          (self.uid,))
         row = cur.fetchone()[0]
         # print(row)
         return row
 
     # Function for deleting users in the database.
     def delete(self):
-        cur = con.execute('''DELETE FROM user WHERE id=?''', (self.uid, ))
+        con.execute('''DELETE FROM user WHERE id=?''', (self.uid,))
         con.commit()
         return True
 
@@ -231,7 +263,10 @@ class User:
     @classmethod
     def find_best(cls, limit):
         limit = str(limit)
-        best_users = con.execute('''SELECT * FROM user ORDER BY points DESC LIMIT ?''', (limit,))
+        best_users = con.execute(
+            '''SELECT * FROM user ORDER BY points DESC LIMIT ?''',
+            (limit,)
+        )
         rows = best_users.fetchall()
         output = []
         for u in rows:
@@ -260,6 +295,6 @@ class User:
         else:
             query = query + end
             cur = con.execute(query, filters)
-        output = cur.fetchone()
+        cur.fetchone()
         con.commit()
         return True
