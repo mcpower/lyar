@@ -8,6 +8,7 @@ if os.path.isfile("salt.txt"):
 else:
     salt = b"xisH44wduw3VWC8TBiRK"
 
+
 def hash_password(password):
     bin_password = password.encode("ascii")
     dk = hashlib.pbkdf2_hmac("sha256", bin_password, salt, 100000)
