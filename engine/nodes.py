@@ -1,11 +1,13 @@
 import html
 
+
 class Node:
     def __init__(self):
         pass
 
     def render(self, context):
         raise NotImplementedError()
+
 
 class TextNode(Node):
 
@@ -20,6 +22,7 @@ class TextNode(Node):
 
     def __repr__(self):
         return "TextNode"
+
 
 class PythonNode(Node):
 
@@ -40,12 +43,14 @@ class PythonNode(Node):
     def __repr__(self):
         return "PythonNode"
 
+
 class SafeNode(PythonNode):
     def render(self, context):
         try:
             output = eval(self.code, {}, context)
         except NameError:
-            raise NameError("Required variable in safe statement not defined in context.")
+            raise NameError("Required variable in safe statement not defined "
+                            "in context.")
         else:
             return str(output)
 
@@ -54,6 +59,7 @@ class SafeNode(PythonNode):
 
     def __repr__(self):
         return "SafeNode"
+
 
 class GroupNode(Node):
 
@@ -78,6 +84,7 @@ class GroupNode(Node):
     def __str__(self):
         return "GroupNode: " + str(self.children)
 
+
 class IfNode(Node):
     def __init__(self, predicate):
         self.predicate = predicate
@@ -94,7 +101,8 @@ class IfNode(Node):
         try:
             result = eval(self.predicate, {}, context)
         except NameError:
-            raise NameError("Required variable in if predicate not defined in context. Context is {}".format(context))
+            raise NameError("Required variable in if predicate not defined "
+                            "in context. Context is {}".format(context))
         else:
             if result:
                 return self.true_node.render(context)
@@ -120,14 +128,16 @@ class ForNode(Node):
         try:
             iterating = eval(self.iterable, {}, context)
         except NameError:
-            raise NameError("Required variable in for loop iterable not defined in context.")
+            raise NameError("Required variable in for loop iterable "
+                            "not defined in context.")
         else:
             out = ""
             for item in iterating:
-                new_context = dict(context) # new instance
+                new_context = dict(context)  # new instance
                 new_context[self.variable] = item
                 out += self.loop_block.render(new_context)
             return out
+
 
 class CommentNode(Node):
     def __init__(self, comment):

@@ -1,20 +1,25 @@
 import re
 import os
-from .nodes import TextNode, PythonNode, GroupNode, IfNode, ForNode, SafeNode, CommentNode
+from .nodes import (TextNode, PythonNode, GroupNode, IfNode, ForNode, SafeNode,
+                    CommentNode)
 
 DIRECTORY = os.path.join(os.path.dirname(__file__), '..', 'templates')
 
+
 class ParseException(Exception):
     pass
+
 
 def split_tokens(s):
     r = re.compile(r'({[{%].*?[%}]})')
     return r.split(s)
 
+
 def make_dict(label, data):
-    return {'label': label,
-            'data': data
-           }
+    return {
+        'label': label,
+        'data': data
+    }
 
 
 def id_token(token):
@@ -23,7 +28,8 @@ def id_token(token):
     elif token.startswith('{%') and token.endswith('%}'):
         inner = token[2:-2].split()
         if inner[0] == 'include':
-            return make_dict('include', {'path' : inner[1], 'variables' : inner[2:]})
+            return make_dict('include',
+                             {'path': inner[1], 'variables': inner[2:]})
         elif inner[0] == 'if':
             predicate = " ".join(inner[1:])
             return make_dict('if', predicate)
@@ -32,7 +38,11 @@ def id_token(token):
         elif ' '.join(inner) == 'end if':
             return make_dict('end if', None)
         elif inner[0] == 'for':
-            return make_dict('for', {'variable': inner[1], 'iterable': " ".join(inner[3:])})
+            return make_dict('for',
+                             {
+                                 'variable': inner[1],
+                                 'iterable': " ".join(inner[3:])
+                             })
         elif ' '.join(inner) == 'end for':
             return make_dict('end for', None)
         elif inner[0] == 'safe':
@@ -55,7 +65,7 @@ def parse(tokens, parent=None, upto=0, parent_type=None):
         parent = GroupNode()
     while upto < len(tokens):
         current_token = tokens[upto]
-        label = current_token['label'] 
+        label = current_token['label']
         if label == 'python':
             new_node = PythonNode(current_token['data'])
             upto += 1
@@ -70,9 +80,11 @@ def parse(tokens, parent=None, upto=0, parent_type=None):
             parent.add_child(new_node)
         elif label == 'include':
             upto += 1
-            includePath = os.path.join(DIRECTORY, current_token['data']['path'])
+            includePath = os.path.join(DIRECTORY,
+                                       current_token['data']['path'])
             with open(includePath) as f:
-                parse(lexer(f.read()), parent, 0, parent_type) #new file, therefore upto = 0
+                # new file, therefore upto = 0
+                parse(lexer(f.read()), parent, 0, parent_type)
         elif label == 'if':
             new_node = IfNode(current_token['data'])
             parent.add_child(new_node)
@@ -83,24 +95,29 @@ def parse(tokens, parent=None, upto=0, parent_type=None):
             label = current_token['label']
             if label == "else":
                 upto += 1
-                elseGroup, new_pos = parse(tokens, new_node.false_node, upto, "else")
+                elseGroup, new_pos = parse(tokens, new_node.false_node,
+                                           upto, "else")
                 upto = new_pos
         elif label == "else":
             if parent_type == "if":
                 return parent, upto
             else:
-                raise ParseException('Found "else" without corresponding "if" statement')
+                raise ParseException('Found "else" without corresponding '
+                                     '"if" statement')
         elif label == 'end if':
             if parent_type in ("if", "else"):
                 upto += 1
                 return parent, upto
             else:
-                raise ParseException('Found "end if" without corresponding "if" statement')
+                raise ParseException('Found "end if" without corresponding '
+                                     '"if" statement')
         elif label == 'for':
-            new_node = ForNode(current_token['data']['iterable'], current_token['data']['variable'])
+            new_node = ForNode(current_token['data']['iterable'],
+                               current_token['data']['variable'])
             parent.add_child(new_node)
             upto += 1
-            for_group, new_pos = parse(tokens, new_node.loop_block, upto, "for")
+            for_group, new_pos = parse(tokens, new_node.loop_block,
+                                       upto, "for")
             upto = new_pos
             current_token = tokens[upto]
             label = current_token['label']
@@ -109,13 +126,15 @@ def parse(tokens, parent=None, upto=0, parent_type=None):
                 upto += 1
                 return parent, upto
             else:
-                raise ParseException('Found "end for" without corresponding "for" statement')
+                raise ParseException('Found "end for" without corresponding '
+                                     '"for" statement')
         elif label == 'comment':
             upto += 1
             new_node = CommentNode(current_token['data'])
             parent.add_child(new_node)
 
     return parent, upto
+
 
 def render_page(file_name, context):
     file_path = os.path.join(DIRECTORY, file_name)
@@ -126,7 +145,7 @@ def render_page(file_name, context):
 #   test = """
 #           <html>
 #           <head><title>TitleText</title><head>
-#           {{ 4+2 }} 
+#           {{ 4+2 }}
 #           {% if False %}
 #           Hello
 #           {% end if %}
