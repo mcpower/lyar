@@ -2,7 +2,7 @@ from tornado.ncss import Server
 import engine.template as template
 import db.api as api
 import re
-
+import argparse
 
 username_regex = re.compile(r"^[a-zA-Z0-9\-_]{3,20}$")
 password_regex = re.compile(r"^[ -~]{1,128}$")
@@ -327,27 +327,41 @@ def scoreboard_handler(response):
         "top_users": top_users,
         "current_user": current_user
     }))
-    
 
-# Make a server object so we can attach URLs to functions.
-server = Server()
 
-# This says that localhost:8888/ should display the result of the
-# "index" function.
-# server.register("/", index)
-server.register("/", view_question)
-server.register("/about", about)
-server.register("/question/create", create_question)
-server.register("/question/insert", insert_new_question)
-server.register("/login", login)
-server.register("/logout", logout)
-server.register("/register", register)
-server.register("/question/answer",vote)
-server.register(r"/question/(\d+)", question_handler)
-server.register(r'/profile/(\w+)', profile_handler)
-server.register("/stats", statistics_handler)
-server.register("/scoreboard", scoreboard_handler)
-server.register("/404", _404)
-server.register(r"/.+", page_not_found) 
-# Start the server. Gotta do this.
-server.run()
+def new_server(hostname='', port=8888):
+    # Make a server object so we can attach URLs to functions.
+    server = Server(hostname=hostname, port=port)
+
+    # This says that localhost:8888/ should display the result of the
+    # "index" function.
+    # server.register("/", index)
+    server.register("/", view_question)
+    server.register("/about", about)
+    server.register("/question/create", create_question)
+    server.register("/question/insert", insert_new_question)
+    server.register("/login", login)
+    server.register("/logout", logout)
+    server.register("/register", register)
+    server.register("/question/answer", vote)
+    server.register(r"/question/(\d+)", question_handler)
+    server.register(r'/profile/(\w+)', profile_handler)
+    server.register("/stats", statistics_handler)
+    server.register("/scoreboard", scoreboard_handler)
+    server.register("/404", _404)
+    server.register(r"/.+", page_not_found)
+
+    return server
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', type=int, default=8888,
+                        help='port to listen on')
+    parser.add_argument('-H', '--host', type=str, default='',
+                        help='hostname to bind to')
+
+    args = parser.parse_args()
+
+    server = new_server(args.host, args.port)
+    # Start the server. Gotta do this.
+    server.run()
