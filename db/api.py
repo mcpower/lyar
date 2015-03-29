@@ -29,7 +29,7 @@ class Question:
     def create(cls, statement0, statement1, statement2, lie, creator_id,
                name=""):
         id_find = con.execute(
-            """SELECT id FROM question ORDER BY id DESCLIMIT 1;"""
+            """SELECT id FROM question ORDER BY id DESC LIMIT 1;"""
         )
         row = id_find.fetchone()
         qid = int(row[0]) + 1
