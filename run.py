@@ -25,15 +25,12 @@ def is_checked(userid, questid, vote):
         return False
 
 def page_not_found(response):
-    response.redirect("/404")
-
-def _404(response):
     current_user = get_user_from_response(response)
+    response.set_status(404)
     response.write(template.render_page("404.html", {
-        "questions" : api.Question.find_all(),
         "current_user": current_user
     }))
-    
+
 def about(response):
     current_user = get_user_from_response(response)
     response.write(template.render_page("about.html", {
@@ -296,11 +293,9 @@ def question_handler(response, question_id):
 
 
 def profile_handler(response, user_name): 
-    current_user = get_user_from_response(response)
     user_profile = api.User.find(user_name)
     if user_profile is not None:
-        print(user_name)
-        print(user_profile)
+        current_user = get_user_from_response(response)
         response.write(template.render_page('profile.html', {
             'username' : user_profile.username, 
             "questions" : api.Question.find_all(user_profile.uid), 
@@ -308,7 +303,7 @@ def profile_handler(response, user_name):
             "points": user_profile.points
         }))
     else:
-        response.redirect('/404')
+        page_not_found(response)
 
 
 def statistics_handler(response):
@@ -348,7 +343,6 @@ def new_server(hostname='', port=8888):
     server.register(r'/profile/(\w+)', profile_handler)
     server.register("/stats", statistics_handler)
     server.register("/scoreboard", scoreboard_handler)
-    server.register("/404", _404)
     server.register(r"/.+", page_not_found)
 
     return server
