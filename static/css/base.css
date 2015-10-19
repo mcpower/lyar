@@ -9,12 +9,14 @@ body{
 		position:relative;
 		display: flex;
 		-webkit-flex-direction: column;
+		flex-direction: column;
 		color: #555;
 		}
 
 #horiz_cols {
 		display: flex;
 		-webkit-flex-direction: row;
+		flex-direction: row;
 }
 
 #bg {
@@ -36,6 +38,7 @@ body{
 	background-size: cover;
 	background-image: url(/static/images/big-crowd.jpg);
 	-webkit-filter: blur(4px);
+	filter: blur(4px);
 	z-index: -1;
 }
 
