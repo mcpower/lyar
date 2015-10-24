@@ -1,35 +1,36 @@
+<!DOCTYPE html>
 <html>
 <head>
-        <title>Lyar</title>
-        <link rel="stylesheet" type="text/css" href="/static/css/normalize.css">
-        <link rel="stylesheet" type="text/css" href="/static/css/base.css">
-        <link rel="stylesheet" type="text/css" href="/static/css/960pxgrid.css">
-        <link rel="stylesheet" type="text/css" href="/static/css/font-awesome.css">
-       <link href='http://fonts.googleapis.com/css?family=Arvo' rel='stylesheet' type='text/css'>
-        <link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,300,700,100' rel='stylesheet' type='text/css'>
-        <meta charset="utf-8">
+	<meta charset="utf-8">
+	<title>Lyar</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/normalize.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/base.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/960pxgrid.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/font-awesome.css">
+	<link href="//fonts.googleapis.com/css?family=Arvo" rel="stylesheet" type="text/css">
+	<link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700,100" rel="stylesheet" type="text/css">
 </head>
 <body>
-    <header>
-        <div class="headerBg">
-            <div class="container_12">
-                <a href="/" class="grid_4 alpha"><h1 class="grid_4 alpha">Lyar <i class="fa fa-comment-o"></i></h1></a>
-                <nav class="grid_8 omega">
-                    {% if current_user is not None %}
-                    <a href="/profile/{{ current_user.username }}">{{ current_user.username.title() }}</a>
-                    <a href="/question/create">Post</a>
-                    {% end if %}
-                    <a href="/stats">Stats</a>
+	<header>
+		<div class="headerBg">
+			<div class="container_12">
+				<a href="/" class="grid_4 alpha"><h1 class="grid_4 alpha">Lyar <i class="fa fa-comment-o"></i></h1></a>
+				<nav class="grid_8 omega">
+					{% if current_user is not None %}
+					<a href="/profile/{{ current_user.username }}">{{ current_user.username.title() }}</a>
+					<a href="/question/create">Post</a>
+					{% end if %}
+					<a href="/stats">Stats</a>
 					<a href="/scoreboard">Scoreboard</a>
-                    <a href="/about">About</a>
-                    {% if current_user is None %}
-                        <a href="/login">Login</a>
-                        <a href="/register">Register</a>
-                    {% else %}
-                        <a href="/logout">Log out</a>
-                    {% end if %}
-                </nav>
-            </div>
-        </div>
-    </header>
+					<a href="/about">About</a>
+					{% if current_user is None %}
+						<a href="/login">Login</a>
+						<a href="/register">Register</a>
+					{% else %}
+						<a href="/logout">Log out</a>
+					{% end if %}
+				</nav>
+			</div>
+		</div>
+	</header>
 	<main class="container_12">
